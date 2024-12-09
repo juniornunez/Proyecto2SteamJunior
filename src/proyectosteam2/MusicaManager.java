@@ -128,25 +128,24 @@ public boolean agregarCancionBiblioteca(String nombreUsuario, String titulo, Str
         return false;
     }
 }
-// Copiar un archivo MP3
-private void copiarArchivoMP3(String rutaOrigen, String rutaDestino) throws IOException {
-    File archivoOrigen = new File(rutaOrigen);
-    File archivoDestino = new File(rutaDestino);
 
-    if (!archivoDestino.getParentFile().exists()) {
-        archivoDestino.getParentFile().mkdirs(); 
-    }
+    private void copiarArchivoMP3(String rutaOrigen, String rutaDestino) throws IOException {
+        File archivoOrigen = new File(rutaOrigen);
+        File archivoDestino = new File(rutaDestino);
 
-    try (FileInputStream fis = new FileInputStream(archivoOrigen);
-         FileOutputStream fos = new FileOutputStream(archivoDestino)) {
+        if (!archivoDestino.getParentFile().exists()) {
+            archivoDestino.getParentFile().mkdirs();
+        }
 
-        byte[] buffer = new byte[1024];
-        int bytesRead;
-        while ((bytesRead = fis.read(buffer)) != -1) {
-            fos.write(buffer, 0, bytesRead);
+        try (FileInputStream fis = new FileInputStream(archivoOrigen); FileOutputStream fos = new FileOutputStream(archivoDestino)) {
+
+            byte[] buffer = new byte[1024];
+            int bytesRead;
+            while ((bytesRead = fis.read(buffer)) != -1) {
+                fos.write(buffer, 0, bytesRead);
+            }
         }
     }
-}
 
     public void cargarBibliotecaPersonal(String nombreUsuario, MusicaGUI gui) {
         File carpetaUsuario = new File(CARPETA_USUARIO + "/" + nombreUsuario + "/musica");
@@ -156,7 +155,9 @@ private void copiarArchivoMP3(String rutaOrigen, String rutaDestino) throws IOEx
         }
 
         File[] archivos = carpetaUsuario.listFiles((dir, name) -> name.endsWith(".bin"));
-        if (archivos == null) return;
+        if (archivos == null) {
+            return;
+        }
 
         for (File archivo : archivos) {
             try (RandomAccessFile raf = new RandomAccessFile(archivo, "r")) {
@@ -180,10 +181,14 @@ private void copiarArchivoMP3(String rutaOrigen, String rutaDestino) throws IOEx
 
     public void limpiarArchivosCorruptos(String nombreUsuario) {
         File carpetaUsuario = new File(CARPETA_USUARIO + "/" + nombreUsuario + "/musica");
-        if (!carpetaUsuario.exists()) return;
+        if (!carpetaUsuario.exists()) {
+            return;
+        }
 
         File[] archivos = carpetaUsuario.listFiles();
-        if (archivos == null) return;
+        if (archivos == null) {
+            return;
+        }
 
         for (File archivo : archivos) {
             try (RandomAccessFile raf = new RandomAccessFile(archivo, "r")) {

@@ -51,11 +51,10 @@ public class ChatUserListGUI extends JFrame {
     }
 
     private void abrirChat(String destinatario) {
-    // JFrame para el usuario actual
+    
     ChatGUI userPOV = new ChatGUI(usuarioActual, destinatario);
     userPOV.setVisible(true);
 
-    // JFrame para el destinatario
     ChatGUI recipientPOV = new ChatGUI(destinatario, usuarioActual);
     recipientPOV.setVisible(true);
 }

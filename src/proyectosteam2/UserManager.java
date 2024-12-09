@@ -9,7 +9,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import javax.swing.JOptionPane;
 
-public class UserManager {
+public final class UserManager {
     private static final String FILE_PATH = "users.bin";
     private static final String CARPETA_USUARIOS = "usuarios";
     
@@ -32,31 +32,43 @@ public class UserManager {
         }
     }
 
-    public boolean registerUser(String username, String password, boolean isAdmin) {
-        try (RandomAccessFile raf = new RandomAccessFile(FILE_PATH, "rw")) {
-            
-            while (raf.getFilePointer() < raf.length()) {
-                String existingUsername = raf.readUTF();
-                raf.readUTF(); 
-                raf.readBoolean(); 
-                if (existingUsername.equals(username)) {
-                    return false; 
-                }
-            }
-
-            raf.seek(raf.length());
-            raf.writeUTF(username);
-            raf.writeUTF(password);
-            raf.writeBoolean(isAdmin);
-
-            crearCarpetaUsuario(username);
-
-            return true;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return false;
+   public boolean registerUser(String username, String password, boolean isAdmin) {
+    try (RandomAccessFile raf = new RandomAccessFile(FILE_PATH, "rw")) {
+       
+        if (verificarUsuarioRecursivamente(raf, username, 0)) {
+            return false; 
         }
+
+        raf.seek(raf.length());
+        raf.writeUTF(username);
+        raf.writeUTF(password);
+        raf.writeBoolean(isAdmin);
+
+        crearCarpetaUsuario(username);
+
+        return true;
+    } catch (IOException e) {
+        e.printStackTrace();
+        return false;
     }
+}
+
+private boolean verificarUsuarioRecursivamente(RandomAccessFile raf, String username, int index) throws IOException {
+   
+    if (raf.getFilePointer() >= raf.length()) {
+        return false; 
+    }
+
+    String existingUsername = raf.readUTF();
+    raf.readUTF(); 
+    raf.readBoolean(); 
+
+    if (existingUsername.equals(username)) {
+        return true;
+    }
+    
+    return verificarUsuarioRecursivamente(raf, username, index + 1);
+}
 
     public boolean esAdmin(String username) {
     try (RandomAccessFile raf = new RandomAccessFile(FILE_PATH, "r")) {

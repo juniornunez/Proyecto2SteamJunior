@@ -117,46 +117,76 @@ public class MusicaGUI extends JFrame {
         panelBibliotecaPersonal.repaint();
     }
 
-    private void agregarCancionGlobal() {
-    JTextField campoTitulo = new JTextField();
-    JTextField campoArtista = new JTextField();
-    JTextField campoAlbum = new JTextField();
-    JTextField campoDuracion = new JTextField();
-    JFileChooser fileChooserMp3 = new JFileChooser();
-    JFileChooser fileChooserCaratula = new JFileChooser();
+   private void agregarCancionGlobal() {
+    // Crear campos de texto más pequeños
+    JTextField campoTitulo = new JTextField(15);
+    JTextField campoArtista = new JTextField(15);
+    JTextField campoAlbum = new JTextField(15);
+    JTextField campoDuracion = new JTextField(15);
+    
+    // Crear botones que abran el JFileChooser fuera del JOptionPane
+    JButton botonSeleccionarMp3 = new JButton("Seleccionar MP3");
+    JButton botonSeleccionarCaratula = new JButton("Seleccionar Caratula");
+    
+    // Variable para almacenar las rutas de los archivos seleccionados
+    final File[] archivoMp3 = new File[1];
+    final File[] archivoCaratula = new File[1];
+    
+    // Acción para seleccionar archivo MP3
+    botonSeleccionarMp3.addActionListener(e -> {
+        JFileChooser fileChooser = new JFileChooser();
+        int resultado = fileChooser.showOpenDialog(null);
+        if (resultado == JFileChooser.APPROVE_OPTION) {
+            archivoMp3[0] = fileChooser.getSelectedFile();
+        }
+    });
+    
+    // Acción para seleccionar la carátula
+    botonSeleccionarCaratula.addActionListener(e -> {
+        JFileChooser fileChooser = new JFileChooser();
+        int resultado = fileChooser.showOpenDialog(null);
+        if (resultado == JFileChooser.APPROVE_OPTION) {
+            archivoCaratula[0] = fileChooser.getSelectedFile();
+        }
+    });
 
-    Object[] mensaje = {
-        "Titulo:", campoTitulo,
-        "Artista:", campoArtista,
-        "Album:", campoAlbum,
-        "Duracion (en segundos):", campoDuracion,
-        "Archivo MP3:", fileChooserMp3,
-        "Caratula (JPG/PNG):", fileChooserCaratula
-    };
+    // Crear panel con GridLayout para organizar los componentes
+    JPanel panel = new JPanel();
+    panel.setLayout(new GridLayout(0, 2, 5, 5));
 
-    int opcion = JOptionPane.showConfirmDialog(this, mensaje, "Agregar Cancion al Catalogo Global", JOptionPane.OK_CANCEL_OPTION);
+    // Añadir componentes al panel
+    panel.add(new JLabel("Titulo:"));
+    panel.add(campoTitulo);
+    panel.add(new JLabel("Artista:"));
+    panel.add(campoArtista);
+    panel.add(new JLabel("Album:"));
+    panel.add(campoAlbum);
+    panel.add(new JLabel("Duracion (en segundos):"));
+    panel.add(campoDuracion);
+    panel.add(botonSeleccionarMp3);
+    panel.add(botonSeleccionarCaratula);
+
+    // Mostrar el JOptionPane con el panel
+    int opcion = JOptionPane.showConfirmDialog(this, panel, "Agregar Cancion al Catalogo Global", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+
     if (opcion == JOptionPane.OK_OPTION) {
         try {
             String titulo = campoTitulo.getText();
             String artista = campoArtista.getText();
             String album = campoAlbum.getText();
             int duracion = Integer.parseInt(campoDuracion.getText());
-            File archivoMp3 = fileChooserMp3.getSelectedFile();
-            File archivoCaratula = fileChooserCaratula.getSelectedFile();
 
-            // Validar campos vacíos
-            if (titulo.isEmpty() || artista.isEmpty() || album.isEmpty() || archivoMp3 == null || archivoCaratula == null) {
+            if (titulo.isEmpty() || artista.isEmpty() || album.isEmpty() || archivoMp3[0] == null || archivoCaratula[0] == null) {
                 JOptionPane.showMessageDialog(this, "Por favor llena todos los campos.", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
-            // Validar extensión del archivo
-            if (!archivoMp3.getName().toLowerCase().endsWith(".mp3")) {
+            if (!archivoMp3[0].getName().toLowerCase().endsWith(".mp3")) {
                 JOptionPane.showMessageDialog(this, "El archivo seleccionado no es un MP3. Por favor selecciona un archivo valido.", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
-            boolean resultado = gestorMusica.agregarCancionGlobal(titulo, artista, album, duracion, archivoMp3.getAbsolutePath(), archivoCaratula);
+            boolean resultado = gestorMusica.agregarCancionGlobal(titulo, artista, album, duracion, archivoMp3[0].getAbsolutePath(), archivoCaratula[0]);
             if (resultado) {
                 JOptionPane.showMessageDialog(this, "Cancion añadida al catalogo global.");
                 cargarCancionesGlobales();
